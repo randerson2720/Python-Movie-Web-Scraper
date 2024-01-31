@@ -1,5 +1,7 @@
 import requests
 import os
+import tkinter as tk
+from tkinter import messagebox
 from bs4 import BeautifulSoup
 import pandas as pd
 from datetime import datetime
@@ -30,7 +32,73 @@ def fetch_movie_data(url):
         "Description": description
     }
 
+# clear button
+def clear():
+    url_entry.delete(0, tk.END)
+
+# submit button and save data
+def submit():
+    url = url_entry.get()
+    if url:
+        try:
+            movie_data = fetch_movie_data(url)
+            current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            movie_data['Date Watched'] = current_time
+
+            excel_filename = "movie_data.xlsx"
+            if os.path.exists(excel_filename):
+                df = pd.read_excel(excel_filename)
+            else:
+                df = pd.DataFrame()
+
+            new_row = pd.DataFrame([movie_data])
+            df = pd.concat([df, new_row], ignore_index=True)
+
+            df.to_excel(excel_filename, index=False)
+            messagebox.showinfo("Success", f"Data saved to {excel_filename}")
+        except Exception as e:
+            messagebox.showerror("Error", str(e))
+    else:
+        messagebox.showwarning("Warning", "Please enter a URL")
+
+# set up GUI
+# main window
+root = tk.Tk()
+root.title("Movie Web Scraper!")
+
+# frame for the textbox and buttons
+frame = tk.Frame(root)
+frame.pack(padx=10, pady=10)
+
+# url entry
+url_entry = tk.Entry(frame, width=50)
+url_entry.pack(side=tk.LEFT, padx=(0,10))
+
+# submit button
+submit_button = tk.Button(frame, text="Submit", command=submit)
+submit_button.pack(side=tk.LEFT)
+
+# clear button
+clear_button = tk.Button(frame, text="Clear", command=clear)
+clear_button.pack(side=tk.LEFT)
+
+# start the gui
+root.mainloop()
+
+
+
+
+
+
+
+
+
+
+
+
+
 # NEXT STEP IS TO CREATE A BROWSER EXTENSION TO UPDATE THE URL AUTOMATICALLY
+'''
 url = ''
 movie_data = fetch_movie_data(url)
 
@@ -52,7 +120,7 @@ else:
 
 # Append new data to the file
 '''
-PANDAS NO LONGER SUPPORTS APPEND METHOD
+#PANDAS NO LONGER SUPPORTS APPEND METHOD
 '''
 #df = df.append(movie_data, ignore_index=True)
 
@@ -65,4 +133,4 @@ df.to_excel(excel_filename, index=False)
 
 print(f"Data saved to {excel_filename}")
 
-
+'''
